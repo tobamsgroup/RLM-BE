@@ -23,7 +23,7 @@ export class OrganisationController {
 
   @Post('login')
   async login(@Body() { email, password }) {
-    return this.organisationService.login({ email, password });
+    return this.organisationService.login( email, password );
   }
 
   @Post('forgot-password')

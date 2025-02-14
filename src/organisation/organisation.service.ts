@@ -50,7 +50,7 @@ export class OrganisationService {
     return targetOrganisationWithoutPassword
   }
 
-  async login({email, password}:{email:string; password:string}) {
+  async login(email:string, password:string) {
     if(!email || !password){
         throw new HttpException('invalid Email or Password!', 400);
 
