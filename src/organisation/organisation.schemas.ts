@@ -1,20 +1,20 @@
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { HydratedDocument } from 'mongoose';
 
-export type UserDocument = HydratedDocument<User>;
+export type OrganisationDocument = HydratedDocument<Organisation>;
 
 @Schema()
-export class User {
+export class Organisation {
 
   @Prop()
   firstName: string;
 
   @Prop()
-  lastName: number;
+  lastName: string;
 
-  @Prop()
+  @Prop({required:true})
   organisationName: string;
 
   @Prop()
@@ -26,7 +26,7 @@ export class User {
   @Prop()
   typeOfOrganisation: string;
 
-  @Prop()
+  @Prop({required:true})
   email: string;
 
   @Prop()
@@ -37,6 +37,12 @@ export class User {
 
   @Prop()
   password: string;
+
+  @Prop({default:false})
+  isVerified:boolean;
+
+  @Prop({default:false})
+  mfaEnabled:boolean
 }
 
-export const UserSchema = SchemaFactory.createForClass(User);
+export const OrganisationSchema = SchemaFactory.createForClass(Organisation);

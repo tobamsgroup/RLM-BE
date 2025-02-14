@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { PartnerModule } from './partner/partner.module';
 import { NewsletterModule } from './newsletter/newsletter.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { OrganisationModule } from './organisation/organisation.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     }),
     PartnerModule,
     NewsletterModule,
+    OrganisationModule
   ],
   controllers: [],
   providers: [],
