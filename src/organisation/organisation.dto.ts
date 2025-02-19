@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, IsOptional } from 'class-validator';
 
 export class OrganisationDto {
   @IsNotEmpty()
@@ -31,4 +31,39 @@ export class OrganisationDto {
   @IsNotEmpty()
   @IsString()
   country: string;
+}
+
+
+export class UpdateOrganisationDto {
+  @IsOptional()
+  @IsString()
+  firstName?: string;
+
+  @IsOptional()
+  @IsString()
+  lastName?: string;
+
+  @IsOptional()
+  @IsString()
+  organisationName?: string;
+
+  @IsOptional()
+  @IsString()
+  typeOfOrganisation?: string;
+
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  phoneNumber?: string;
+
+  @IsOptional()
+  @IsString()
+  password?: string;
+
+  @IsOptional()
+  @IsString()
+  country?: string;
 }

@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { OrganisationService } from './organisation.service';
-import { OrganisationDto } from './organisation.dto';
+import { OrganisationDto, UpdateOrganisationDto } from './organisation.dto';
 
 @Controller('organisation')
 export class OrganisationController {
@@ -21,10 +21,20 @@ export class OrganisationController {
     return await this.organisationService.getOrganisation(id);
   }
 
+  @Patch('/update/:id')
+  async updateOrganisation(@Param('id') id: string, @Body() updateOrganisationDto: UpdateOrganisationDto) {
+    return await this.organisationService.updateOrganisation(id, updateOrganisationDto);
+  }
+
   @Post('login')
   async login(@Body() { email, password }) {
     return this.organisationService.login( email, password );
   }
+  @Post('google/auth')
+  async googleLogin(@Body() { email}) {
+    return this.organisationService.googleAuth(email);
+  }
+
 
   @Post('forgot-password')
   async forgotPassword(@Body() { email}) {

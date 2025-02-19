@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Organisation, OrganisationSchema } from './organisation.schemas';
 import { OrganisationService } from './organisation.service';
 import { OrganisationController } from './organisation.controller';
+import { GoogleStrategy } from 'src/strategy/google.strategy';
 
 @Module({
   imports: [MongooseModule.forFeature([{
@@ -10,7 +11,7 @@ import { OrganisationController } from './organisation.controller';
     schema: OrganisationSchema
   }])],
   controllers: [OrganisationController],
-  providers: [OrganisationService ],
+  providers: [OrganisationService, GoogleStrategy ],
 })
 
 export class OrganisationModule {}

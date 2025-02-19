@@ -14,7 +14,7 @@ export class Organisation {
   @Prop()
   lastName: string;
 
-  @Prop({required:true})
+  @Prop()
   organisationName: string;
 
   @Prop()
@@ -40,6 +40,9 @@ export class Organisation {
 
   @Prop({default:false})
   isVerified:boolean;
+
+  @Prop({default:false})  //used for google auth on the FE for completing signup
+  isFirstTime:boolean;
 
   @Prop({default:false})
   mfaEnabled:boolean

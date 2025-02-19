@@ -1,8 +1,8 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { Organisation } from './organisation.schemas';
-import { OrganisationDto } from './organisation.dto';
+import { OrganisationDto, UpdateOrganisationDto } from './organisation.dto';
 import {hashSync, compare} from 'bcrypt'
 import { ConfigService } from '@nestjs/config';
 import { sign, verify } from 'jsonwebtoken';
@@ -32,6 +32,48 @@ export class OrganisationService {
     return targetOrganisationWithoutPassword
   }
 
+  async updateOrganisation (id:string, updateOrganisationDto: UpdateOrganisationDto) {
+    const updatedOrganisation = await this.organisationModel.findByIdAndUpdate(
+      id,
+      { $set: updateOrganisationDto }, // Updates only the provided fields
+      { new: true, runValidators: true }, // Returns the updated document
+    ).select('-password')
+
+    if (!updatedOrganisation) {
+      throw new NotFoundException(`Organisation with ID ${id} not found`);
+    }
+
+    return updatedOrganisation;
+  }
+
+  async googleAuth(email:string) {
+    const isExist = await this.organisationModel.findOne({
+      email
+    }).select('-password')
+    if (isExist) {
+     return isExist 
+    }
+    
+    const newOrganisation = await this.organisationModel.create({
+      email,
+      country:"",
+      isFirstTime:true,
+      firstName:"",
+      lastName:"",
+      isVerified:true,
+      mfaEnabled:false,
+      organisationName:"",
+      organisationUrl:"",
+      password:"",
+      phoneNumber:"",
+      typeOfOrganisation:""
+    })
+    //Send creation email
+    const {password, ...targetOrganisationWithoutPassword } = newOrganisation.toObject();
+
+    return targetOrganisationWithoutPassword
+  }
+
   async listOrganisations() {
     return await this.organisationModel.find();
   }
@@ -41,13 +83,11 @@ export class OrganisationService {
     if (!isValid) {
       throw new HttpException('Organisation not found', 404);
     }
-    const targetOrganisation = await this.organisationModel.findById(id);
+    const targetOrganisation = await this.organisationModel.findById(id).select('-password')
     if (!targetOrganisation) {
       throw new HttpException('Organisation not found', 404);
     }
-    const {password, ...targetOrganisationWithoutPassword } = targetOrganisation.toObject();
-
-    return targetOrganisationWithoutPassword
+    return targetOrganisation
   }
 
   async login(email:string, password:string) {
@@ -55,7 +95,7 @@ export class OrganisationService {
         throw new HttpException('invalid Email or Password!', 400);
 
     }
-    const targetOrganisation = await this.organisationModel.findOne({email})
+    const targetOrganisation = await this.organisationModel.findOne({email}).select('-password')
     if(!targetOrganisation){
         throw new HttpException('Organisation does not exist!', 404);
     }
@@ -67,11 +107,12 @@ export class OrganisationService {
     if(targetOrganisation.mfaEnabled){
         //send mfa  link
     }
+    return targetOrganisation
 
-    const {password:targetPassword, ...targetOrganisationWithoutPassword } = targetOrganisation.toObject();
+  }
 
-    return targetOrganisationWithoutPassword
-
+  async googleLogin() {
+    
   }
 
   async forgotPassword(email:string){
