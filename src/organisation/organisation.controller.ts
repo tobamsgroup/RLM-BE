@@ -42,7 +42,7 @@ export class OrganisationController {
   }
 
   @Post('create-new-password')
-  async createnewPassword(@Body() { email, token}) {
-    return this.organisationService.createNewPassword(email, token);
+  async createnewPassword(@Body() { password, token}) {
+    return this.organisationService.createNewPassword(password, token);
   }
 }

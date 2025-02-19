@@ -142,7 +142,7 @@ export class OrganisationService {
         //@ts-ignore
         return await this.organisationModel.findByIdAndUpdate(decoded.token, {password: hashPassword}, { new: true });
     } catch (error) {
-        throw new HttpException('An Error Occured', 500);
+        throw new HttpException('An Error Occurred', 500);
     }
 
   }
