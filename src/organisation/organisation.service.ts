@@ -36,9 +36,31 @@ export class OrganisationService {
     });
     const { password, ...targetOrganisationWithoutPassword } =
       newOrganisation.toObject();
-    //Send creation emailv
 
-    return targetOrganisationWithoutPassword;
+    //Send creation and verification email
+    const secret = this.configService.get('JWT_TOKEN');
+    const token = sign(
+      { token: targetOrganisationWithoutPassword._id },
+      secret!,
+      { expiresIn: '24h' },
+    );
+    const link = `${this.configService.get('SITE_URL')}/verify-email?token=${token}`;
+    try {
+      const res = await this.mailService.sendEmail(
+        targetOrganisationWithoutPassword.email,
+        'Recycled Learning - Account Confirmation and Verification',
+        organisationCreationEmail({
+          name: targetOrganisationWithoutPassword.organisationName || 'User',
+          verifyLink: link,
+        }),
+      );
+      if (!res.success) {
+        throw new HttpException('An Error Occurred', 500);
+      }
+      return targetOrganisationWithoutPassword;
+    } catch (error) {
+      throw new HttpException('An Error Occurred', 500);
+    }
   }
 
   async updateOrganisation(
@@ -88,30 +110,7 @@ export class OrganisationService {
     const { password, ...targetOrganisationWithoutPassword } =
       newOrganisation.toObject();
 
-    //Send creation and verification email
-    const secret = this.configService.get('JWT_TOKEN');
-    const token = sign(
-      { token: targetOrganisationWithoutPassword._id },
-      secret!,
-      { expiresIn: '24h' },
-    );
-    const link = `${this.configService.get('SITE_URL')}/verify-email?token=${token}`;
-    try {
-      const res = await this.mailService.sendEmail(
-        targetOrganisationWithoutPassword.email,
-        'Recycled Learning - Account Confirmation and Verification',
-        organisationCreationEmail({
-          name: targetOrganisationWithoutPassword.organisationName || 'User',
-          verifyLink: link,
-        }),
-      );
-      if (!res.success) {
-        throw new HttpException('An Error Occurred', 500);
-      }
-      return targetOrganisationWithoutPassword;
-    } catch (error) {
-      throw new HttpException('An Error Occurred', 500);
-    }
+    return targetOrganisationWithoutPassword;
   }
 
   async verifyEmail(token: string) {
