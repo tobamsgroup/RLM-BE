@@ -4,6 +4,7 @@ import { PartnerModule } from './partner/partner.module';
 import { NewsletterModule } from './newsletter/newsletter.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { OrganisationModule } from './organisation/organisation.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -17,7 +18,8 @@ import { OrganisationModule } from './organisation/organisation.module';
     }),
     PartnerModule,
     NewsletterModule,
-    OrganisationModule
+    OrganisationModule,
+    MailModule
   ],
   controllers: [],
   providers: [],

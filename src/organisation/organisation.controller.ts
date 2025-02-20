@@ -11,6 +11,11 @@ export class OrganisationController {
     return await this.organisationService.createOrganisation(organisationDto);
   }
 
+  @Post('verify-email')
+  async verifyEmail(@Body() {token}) {
+    return await this.organisationService.verifyEmail(token);
+  }
+
   @Get('list')
   async listOrganisations() {
     return await this.organisationService.listOrganisations();
