@@ -5,12 +5,15 @@ import { PartnerService } from './partner.service';
 import { PartnersController } from './partner.controller';
 
 @Module({
-  imports: [MongooseModule.forFeature([{
-    name: Partner.name,
-    schema: PartnerSchema
-  }])],
+  imports: [
+    MongooseModule.forFeature([
+      {
+        name: Partner.name,
+        schema: PartnerSchema,
+      },
+    ]),
+  ],
   controllers: [PartnersController],
   providers: [PartnerService],
 })
-
 export class PartnerModule {}

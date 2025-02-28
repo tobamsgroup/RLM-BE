@@ -12,7 +12,7 @@ export class OrganisationController {
   }
 
   @Post('verify-email')
-  async verifyEmail(@Body() {token}) {
+  async verifyEmail(@Body() { token }) {
     return await this.organisationService.verifyEmail(token);
   }
 
@@ -27,27 +27,32 @@ export class OrganisationController {
   }
 
   @Patch('/update/:id')
-  async updateOrganisation(@Param('id') id: string, @Body() updateOrganisationDto: UpdateOrganisationDto) {
-    return await this.organisationService.updateOrganisation(id, updateOrganisationDto);
+  async updateOrganisation(
+    @Param('id') id: string,
+    @Body() updateOrganisationDto: UpdateOrganisationDto,
+  ) {
+    return await this.organisationService.updateOrganisation(
+      id,
+      updateOrganisationDto,
+    );
   }
 
   @Post('login')
   async login(@Body() { email, password }) {
-    return this.organisationService.login( email, password );
+    return this.organisationService.login(email, password);
   }
   @Post('google/auth')
-  async googleLogin(@Body() { email}) {
+  async googleLogin(@Body() { email }) {
     return this.organisationService.googleAuth(email);
   }
 
-
   @Post('forgot-password')
-  async forgotPassword(@Body() { email}) {
+  async forgotPassword(@Body() { email }) {
     return this.organisationService.forgotPassword(email);
   }
 
   @Post('create-new-password')
-  async createnewPassword(@Body() { password, token}) {
+  async createnewPassword(@Body() { password, token }) {
     return this.organisationService.createNewPassword(password, token);
   }
 }

@@ -1,4 +1,5 @@
-import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
+/* eslint-disable */ 
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { Organisation } from './organisation.schemas';
@@ -6,7 +7,6 @@ import { OrganisationDto, UpdateOrganisationDto } from './organisation.dto';
 import { hashSync, compare } from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { sign, verify } from 'jsonwebtoken';
-import sendEmail from 'utils/email';
 import {
   organisationCreationEmail,
   organisationPasswordResetEmail,
@@ -27,7 +27,7 @@ export class OrganisationService {
       email: organisationDto.email,
     });
     if (isExist) {
-      throw new HttpException('Organisation Already Exists', 409);
+      throw new HttpException('Organisation Already Exists', HttpStatus.CONFLICT);
     }
     const hashedPassword = hashSync(organisationDto.password, 10);
     const newOrganisation = await this.organisationModel.create({
@@ -41,7 +41,7 @@ export class OrganisationService {
     const secret = this.configService.get('JWT_TOKEN');
     const token = sign(
       { token: targetOrganisationWithoutPassword._id },
-      secret!,
+      secret,
       { expiresIn: '24h' },
     );
     const link = `${this.configService.get('SITE_URL')}/verify-email?token=${token}`;
@@ -55,11 +55,11 @@ export class OrganisationService {
         }),
       );
       if (!res.success) {
-        throw new HttpException('An Error Occurred', 500);
+        throw new HttpException('An Error Occurred', HttpStatus.INTERNAL_SERVER_ERROR);
       }
       return targetOrganisationWithoutPassword;
     } catch (error) {
-      throw new HttpException('An Error Occurred', 500);
+      throw new HttpException('An Error Occurred', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -123,7 +123,7 @@ export class OrganisationService {
         { new: true },
       );
     } catch (error) {
-      throw new HttpException('An Error Occurred', 500);
+      throw new HttpException('An Error Occurred',HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -134,30 +134,30 @@ export class OrganisationService {
   async getOrganisation(id: string) {
     const isValid = mongoose.Types.ObjectId.isValid(id);
     if (!isValid) {
-      throw new HttpException('Organisation not found', 404);
+      throw new HttpException('Organisation not found', HttpStatus.NOT_FOUND);
     }
     const targetOrganisation = await this.organisationModel
       .findById(id)
       .select('-password');
     if (!targetOrganisation) {
-      throw new HttpException('Organisation not found', 404);
+      throw new HttpException('Organisation not found', HttpStatus.NOT_FOUND);
     }
     return targetOrganisation;
   }
 
   async login(email: string, password: string) {
     if (!email || !password) {
-      throw new HttpException('invalid Email or Password!', 400);
+      throw new HttpException('invalid Email or Password!', HttpStatus.BAD_REQUEST);
     }
     const targetOrganisation = await this.organisationModel
       .findOne({ email })
       .select('-password');
     if (!targetOrganisation) {
-      throw new HttpException('Organisation does not exist!', 404);
+      throw new HttpException('Organisation does not exist!', HttpStatus.NOT_FOUND);
     }
 
     if (!(await compare(password, targetOrganisation.password))) {
-      throw new HttpException('Invalid Email Or Passowrd!', 400);
+      throw new HttpException('Invalid Email Or Passowrd!', HttpStatus.BAD_REQUEST);
     }
 
     if (targetOrganisation.mfaEnabled) {
@@ -168,17 +168,17 @@ export class OrganisationService {
 
   async forgotPassword(email: string) {
     if (!email) {
-      throw new HttpException('invalid Email!', 400);
+      throw new HttpException('invalid Email!', HttpStatus.BAD_REQUEST);
     }
 
     const targetOrganisation = await this.organisationModel.findOne({ email });
     if (!targetOrganisation) {
-      throw new HttpException('Email not found!', 404);
+      throw new HttpException('Email not found!', HttpStatus.NOT_FOUND);
     }
 
     //send recovery link
     const secret = this.configService.get('JWT_TOKEN');
-    const token = sign({ token: targetOrganisation._id }, secret!, {
+    const token = sign({ token: targetOrganisation._id }, secret, {
       expiresIn: '24h',
     });
     const link = `${this.configService.get('SITE_URL')}/create-new-password?token=${token}`;
@@ -193,11 +193,11 @@ export class OrganisationService {
         }),
       );
       if (!res.success) {
-        throw new HttpException('An Error Occurred', 500);
+        throw new HttpException('An Error Occurred', HttpStatus.INTERNAL_SERVER_ERROR);
       }
       return { message: 'Success' };
     } catch (error) {
-      throw new HttpException('An Error Occurred', 500);
+      throw new HttpException('An Error Occurred', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -212,7 +212,7 @@ export class OrganisationService {
         { new: true },
       );
     } catch (error) {
-      throw new HttpException('An Error Occurred', 500);
+      throw new HttpException('An Error Occurred', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

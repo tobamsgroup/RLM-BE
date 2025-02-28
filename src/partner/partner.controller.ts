@@ -8,16 +8,16 @@ export class PartnersController {
 
   @Post('save')
   async savePartner(@Body() savePartnerDto: PartnerDto) {
-    return await this.partnerService.savePartner(savePartnerDto)
+    return await this.partnerService.savePartner(savePartnerDto);
   }
 
   @Get('list')
-  async listPartners(){
-    return await this.partnerService.listPartners()
+  async listPartners() {
+    return await this.partnerService.listPartners();
   }
 
   @Get(':id')
-   async getPartner(@Param('id') id:string){
-    return await this.partnerService.getPartner(id)
+  async getPartner(@Param('id') id: string) {
+    return await this.partnerService.getPartner(id);
   }
 }

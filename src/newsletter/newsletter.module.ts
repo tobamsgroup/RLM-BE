@@ -5,11 +5,15 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Newsletter, NewsletterSchema } from './newsletter.schema';
 
 @Module({
-   imports: [MongooseModule.forFeature([{
-      name: Newsletter.name,
-      schema: NewsletterSchema
-    }])],
+  imports: [
+    MongooseModule.forFeature([
+      {
+        name: Newsletter.name,
+        schema: NewsletterSchema,
+      },
+    ]),
+  ],
   controllers: [NewsletterController],
-  providers: [NewsletterService]
+  providers: [NewsletterService],
 })
 export class NewsletterModule {}

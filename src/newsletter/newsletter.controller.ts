@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpException, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { NewsletterService } from './newsletter.service';
 import { NewsletterDto } from './newsletter.dto';
 
@@ -8,7 +8,7 @@ export class NewsletterController {
 
   @Post('subscribe')
   async subscribeToNewsletter(@Body() newsletterDto: NewsletterDto) {
-     return await this.newsletterService.subscribeToNewsletter(newsletterDto);
+    return await this.newsletterService.subscribeToNewsletter(newsletterDto);
   }
 
   @Get('list')

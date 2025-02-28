@@ -8,7 +8,7 @@ import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({isGlobal:true}),
+    ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -19,7 +19,7 @@ import { MailModule } from './mail/mail.module';
     PartnerModule,
     NewsletterModule,
     OrganisationModule,
-    MailModule
+    MailModule,
   ],
   controllers: [],
   providers: [],

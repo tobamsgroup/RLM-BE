@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Newsletter } from './newsletter.schema';
 import { Model } from 'mongoose';
@@ -15,13 +15,13 @@ export class NewsletterService {
       email: newsletterDto.email,
     });
     if (isExist) {
-      throw new HttpException('Email Already Added', 409);
+      throw new HttpException('Email Already Added', HttpStatus.CONFLICT);
     }
     const subscriber = new this.newsletterModel(newsletterDto);
-    return await subscriber.save()
+    return await subscriber.save();
   }
 
-  async listAllSubscriber () {
-    return await this.newsletterModel.find()
+  async listAllSubscriber() {
+    return await this.newsletterModel.find();
   }
 }

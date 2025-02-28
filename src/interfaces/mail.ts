@@ -1,19 +1,18 @@
-import { Document } from "mongoose";
+import { Document } from 'mongoose';
 
 interface IOtp extends Document {
-  type: string,
-  otp: string,
-  expiration: Date,
-  userId: string
+  type: string;
+  otp: string;
+  expiration: Date;
+  userId: string;
 }
 
 export interface IMailOption {
-  subject: string,
-  htmlContent: string,
-  emailTo?: string | string[],
-  replyTo?: string | string[],
-  bcc?: string[]
+  subject: string;
+  htmlContent: string;
+  emailTo?: string | string[];
+  replyTo?: string | string[];
+  bcc?: string[];
 }
-
 
 export default IOtp;

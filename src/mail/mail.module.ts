@@ -5,22 +5,22 @@ import { MailService } from './mail.service';
 
 @Module({
   imports: [
-    ConfigModule,
+    ConfigModule.forRoot(),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         transport: {
-          host: 'smtp.gmail.com',
+          host: 'smtp.zoho.com',
           port: 465,
-          secure: true, 
+          secure: true,
           auth: {
-            user: 'mailfordevtest404@gmail.com',
-            pass: 'nylqdfechcowgffv',
+            user: config.get<string>('MAIL_ACCOUNT'),
+            pass: config.get<string>('MAIL_PASSKEY'),
           },
         },
         defaults: {
-          from: 'mailfordevtest404@gmail.com',
+          from: `Recycled Learning <${config.get<string>('MAIL_ACCOUNT')}>`,
         },
       }),
     }),

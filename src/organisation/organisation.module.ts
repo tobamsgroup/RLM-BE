@@ -13,7 +13,7 @@ import { MailModule } from 'src/mail/mail.module';
         schema: OrganisationSchema,
       },
     ]),
-    MailModule
+    MailModule,
   ],
   controllers: [OrganisationController],
   providers: [OrganisationService],

@@ -33,7 +33,6 @@ export class OrganisationDto {
   country: string;
 }
 
-
 export class UpdateOrganisationDto {
   @IsOptional()
   @IsString()
