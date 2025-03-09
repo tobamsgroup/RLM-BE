@@ -10,6 +10,7 @@ import sendEmail from 'utils/email';
 import {
   organisationCreationEmail,
   organisationPasswordResetEmail,
+  organisationVerificationEmail,
 } from 'utils/template';
 import { MailService } from 'src/mail/mail.service';
 
@@ -211,6 +212,40 @@ export class OrganisationService {
         { password: hashPassword },
         { new: true },
       );
+    } catch (error) {
+      throw new HttpException('An Error Occurred', 500);
+    }
+  }
+
+  async resendVerificationLink(email: string) {
+
+    if (!email) {
+      throw new HttpException('Email not found', 400);
+    }
+
+    const targetOrganisation = await this.organisationModel.findOne({ email });
+
+    if (!targetOrganisation) {
+      throw new HttpException('Organisation not Found', 404);
+    }
+    const secret = this.configService.get('JWT_TOKEN');
+    const token = sign({ token: targetOrganisation._id }, secret!, {
+      expiresIn: '24h',
+    });
+    const link = `${this.configService.get('SITE_URL')}/verify-email?token=${token}`;
+    try {
+      const res = await this.mailService.sendEmail(
+        targetOrganisation.email,
+        'Recycled Learning - Verify Email',
+        organisationVerificationEmail({
+          name: targetOrganisation.organisationName || 'User',
+          verifyLink: link,
+        }),
+      );
+      if (!res.success) {
+        throw new HttpException('An Error Occurred', 500);
+      }
+      return targetOrganisation;
     } catch (error) {
       throw new HttpException('An Error Occurred', 500);
     }

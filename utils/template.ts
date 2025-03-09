@@ -264,6 +264,75 @@ export const organisationCreationEmail = ({ name, verifyLink }) => {
     `);
 };
 
+export const organisationVerificationEmail = ({ name, verifyLink }) => {
+  return emailHeaderFooter(`
+          <div>
+              <p style="font-size: 24px; font-weight: 600">
+               Activate Your Recycled Learning Account
+              </p>
+              <br />
+              <p style="font-size: 18px; font-weight: 600">
+                Hello ${name}
+              </p>
+              <p style="color: #6c686c; font-size: 18px">
+                You’re just one step away from
+                building powerful learning experiences with our platform. To
+                activate your account and access your admin dashboard, please
+                verify your email by clicking the button below:
+              </p>
+              <br/>
+              <a
+                href=${verifyLink}
+                target="_blank"
+                style="
+                  background-color: #004d99;
+                  border-radius: 8px;
+                  padding: 14px 24px;
+                  color: white;
+                  text-decoration: none;
+                "
+              >
+                Verify My Email
+              </a>
+              <br/>
+              <br/>
+
+              <p style="color: #6c686c; font-size: 18px">
+                If the button doesn’t work, copy and paste this link into your
+                browser:
+              </p>
+              <p style="color:#004D99; font-size: 18px">
+                ${verifyLink}
+              </p>
+
+              <div style="border-top: 1px solid #D3D2D366; margin: 40px 0px;"></div>
+              <p style="font-size: 20px; font-weight: 500">What’s Next?</p>
+              <p  style="color: #6c686c; font-size: 18px">Once your account is activated, you’ll be able to:</p>
+              <ul>
+                <li  style="color: #221d23; font-size: 18px">
+                  Customise your platform with your organisation’s branding.
+                </li>
+                <li  style="color: #221d23; font-size: 18px">Create courses, manage users, and monitor performance.</li>
+                <li  style="color: #221d23; font-size: 18px">
+                  Deliver engaging learning experiences that transform
+                  education.
+                </li>
+              </ul>
+              <div style="border-top: 1px solid #D3D2D366; margin: 40px 0px;"></div>
+
+              <p style="color: #6c686c; font-size: 18px">
+                If you didn’t initiate this registration, please ignore this
+                email or contact our support team.
+              </p>
+              <p style="color: #6c686c; font-size: 18px">
+                We’re thrilled to have you join the Recycled Learning community!
+              </p>
+              <p style="color: #6c686c; font-size: 18px">Warm regards,</p>
+              <p style="color: #221d23; font-size: 18px; font-weight: 600;">The Recycled Learning Team</p>
+            </div>
+    `);
+};
+
 export const organisationPasswordResetEmail = ({ name, resetLink }) => {
   return emailHeaderFooter(`
       <div>

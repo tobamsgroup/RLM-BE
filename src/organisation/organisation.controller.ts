@@ -40,7 +40,6 @@ export class OrganisationController {
     return this.organisationService.googleAuth(email);
   }
 
-
   @Post('forgot-password')
   async forgotPassword(@Body() { email}) {
     return this.organisationService.forgotPassword(email);
@@ -49,5 +48,10 @@ export class OrganisationController {
   @Post('create-new-password')
   async createnewPassword(@Body() { password, token}) {
     return this.organisationService.createNewPassword(password, token);
+  }
+
+  @Post('resend-verification')
+  async resendVerification(@Body() { email}) {
+    return this.organisationService.resendVerificationLink(email);
   }
 }
