@@ -33,8 +33,9 @@ export class OrganisationService {
     const hashedPassword = hashSync(organisationDto.password, 10);
     const newOrganisation = await this.organisationModel.create({
       ...organisationDto,
-      password: hashedPassword,
+      password: hashedPassword
     });
+    
     const { password, ...targetOrganisationWithoutPassword } =
       newOrganisation.toObject();
 
@@ -101,6 +102,7 @@ export class OrganisationService {
       lastName: '',
       isVerified: true,
       mfaEnabled: false,
+      isGoogleSignUp:true,
       organisationName: '',
       organisationUrl: '',
       password: '',

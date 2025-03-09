@@ -44,6 +44,9 @@ export class Organisation {
   @Prop({default:false})  //used for google auth on the FE for completing signup
   isFirstTime:boolean;
 
+  @Prop({default:false})  //used for google auth on the FE for completing signup
+  isGoogleSignUp:boolean;
+
   @Prop({default:false})
   mfaEnabled:boolean
 }
