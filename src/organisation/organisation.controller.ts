@@ -55,4 +55,9 @@ export class OrganisationController {
   async createnewPassword(@Body() { password, token }) {
     return this.organisationService.createNewPassword(password, token);
   }
+
+  @Post('resend-verification')
+  async resendVerification(@Body() { email}) {
+    return this.organisationService.resendVerificationLink(email);
+  }
 }
