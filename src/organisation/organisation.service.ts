@@ -33,7 +33,8 @@ export class OrganisationService {
     const hashedPassword = hashSync(organisationDto.password, 10);
     const newOrganisation = await this.organisationModel.create({
       ...organisationDto,
-      password: hashedPassword
+      password: hashedPassword,
+      email:organisationDto?.email?.toLowerCase()
     });
     
     const { password, ...targetOrganisationWithoutPassword } =
@@ -86,16 +87,14 @@ export class OrganisationService {
 
   async googleAuth(email: string) {
     const isExist = await this.organisationModel
-      .findOne({
-        email,
-      })
+      .findOne({ email: { $regex: new RegExp(`^${email}$`, 'i') } })
       .select('-password');
     if (isExist) {
       return isExist;
     }
 
     const newOrganisation = await this.organisationModel.create({
-      email,
+      email:email?.toLowerCase(),
       country: '',
       isFirstTime: true,
       firstName: '',
@@ -153,8 +152,9 @@ export class OrganisationService {
       throw new HttpException('invalid Email or Password!', HttpStatus.BAD_REQUEST);
     }
     const targetOrganisation = await this.organisationModel
-      .findOne({ email })
+      .findOne({ email: { $regex: new RegExp(`^${email}$`, 'i') } })
       .select('-password');
+
     if (!targetOrganisation) {
       throw new HttpException('Organisation does not exist!', HttpStatus.NOT_FOUND);
     }
