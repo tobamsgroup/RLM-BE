@@ -25,7 +25,7 @@ export class OrganisationService {
 
   async createOrganisation(organisationDto: OrganisationDto) {
     const isExist = await this.organisationModel.findOne({
-      email: organisationDto.email,
+      email: organisationDto.email?.toLowerCase(),
     });
     if (isExist) {
       throw new HttpException('Organisation Already Exists', HttpStatus.CONFLICT);
@@ -174,7 +174,7 @@ export class OrganisationService {
       throw new HttpException('invalid Email!', HttpStatus.BAD_REQUEST);
     }
 
-    const targetOrganisation = await this.organisationModel.findOne({ email });
+    const targetOrganisation = await this.organisationModel.findOne({ email:{ $regex: new RegExp(`^${email}$`, 'i') } });
     if (!targetOrganisation) {
       throw new HttpException('Email not found!', HttpStatus.NOT_FOUND);
     }
@@ -225,7 +225,7 @@ export class OrganisationService {
       throw new HttpException('Email not found', 400);
     }
 
-    const targetOrganisation = await this.organisationModel.findOne({ email });
+    const targetOrganisation = await this.organisationModel.findOne({ email:{ $regex: new RegExp(`^${email}$`, 'i') } });
 
     if (!targetOrganisation) {
       throw new HttpException('Organisation not Found', 404);
