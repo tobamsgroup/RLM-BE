@@ -5,6 +5,7 @@ import { NewsletterModule } from './newsletter/newsletter.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { OrganisationModule } from './organisation/organisation.module';
 import { MailModule } from './mail/mail.module';
+import { SchoolModule } from './school/school.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { MailModule } from './mail/mail.module';
     NewsletterModule,
     OrganisationModule,
     MailModule,
+    SchoolModule
   ],
   controllers: [],
   providers: [],
