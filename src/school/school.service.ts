@@ -17,7 +17,7 @@ export class SchoolService {
   }
 
   async createSchool(schoolDto: CreateSchoolDto) {
-    const isExist = await this.SchoolModel.find({ name: schoolDto.name });
+    const isExist = await this.SchoolModel.findOne({ name: schoolDto.name });
 
     if (isExist) {
       throw new HttpException('School Already Exist', HttpStatus.CONFLICT);

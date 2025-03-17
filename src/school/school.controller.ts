@@ -8,7 +8,7 @@ export class SchoolController {
         private readonly schoolService: SchoolService,
     ){}
 
-    @Get()
+    @Get('list')
     getSchool(){
        return this.schoolService.getSchools()
     }

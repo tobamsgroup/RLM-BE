@@ -8,7 +8,7 @@ class AboutDto {
 
   @IsArray()
   @IsString({ each: true })
-  useCases: string[];
+  targetUsers: string[];
 
   @IsString()
   @IsNotEmpty()

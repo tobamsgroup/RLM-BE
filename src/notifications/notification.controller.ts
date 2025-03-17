@@ -7,7 +7,7 @@ export class NotificationController {
         private readonly notificationService: NotificationService,
     ){}
 
-    @Get()
+    @Get('list')
     getNotifications(){
        return this.notificationService.getNotifications()
     }

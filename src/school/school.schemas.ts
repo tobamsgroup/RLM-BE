@@ -9,7 +9,7 @@ class About {
     goal: string;
   
     @Prop({ type: [String], default: [] }) 
-    useCases: string[];
+    targetUsers: string[];
 
     @Prop({ required: true }) 
     scale: string;

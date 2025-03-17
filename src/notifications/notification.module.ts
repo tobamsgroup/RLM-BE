@@ -16,9 +16,8 @@ import { OrganisationModule } from 'src/organisation/organisation.module';
         schema: NotificationSchema,
       },
     ]),
-    MailModule,
-    OrganisationModule
-  ],
+    MailModule 
+ ],
   controllers: [NotificationController],
   providers: [NotificationService, organisationModels.notificationModel],
   exports:[NotificationService, organisationModels.notificationModel]
