@@ -5,8 +5,9 @@ import { SchoolController } from './school.controller';
 import { SchoolService } from './school.service';
 import { OrganisationMiddleware } from 'src/midddlewares/organisation.middleware';
 import { SchoolSchema, School } from './school.schemas';
-import { organisationConnectionProvider } from 'src/providers/organisation-connection.provider';
 import { organisationModels } from 'src/providers/organisation-models.provider';
+import { NotificationService } from 'src/notifications/notification.service';
+import { NotificationModule } from 'src/notifications/notification.module';
 
 @Module({
   imports: [
@@ -17,9 +18,10 @@ import { organisationModels } from 'src/providers/organisation-models.provider';
       },
     ]),
     MailModule,
+    NotificationModule
   ],
   controllers: [SchoolController],
-  providers: [SchoolService, organisationModels.schoolModel],
+  providers: [SchoolService, organisationModels.schoolModel, NotificationService],
 })
 
 export class SchoolModule implements NestModule {

@@ -9,7 +9,7 @@ class About {
     goal: string;
   
     @Prop({ type: [String], default: [] }) 
-    useCases: string[];
+    targetUsers: string[];
 
     @Prop({ required: true }) 
     scale: string;
@@ -44,9 +44,20 @@ export class School {
   @Prop({ required: true })
   about: About
 
+  @Prop({ default: 'INACTIVE' })
+  status: SchoolStatus
+
+  @Prop({default:"FREE"})
+  plan: string
+
   @Prop({ type: Types.ObjectId, ref: 'Organisation', required: true }) 
   organisation: Types.ObjectId;
 
+}
+
+export enum SchoolStatus {
+  INACTIVE = "INACTIVE",
+  ACTIVE = "ACTIVE"
 }
 
 export const SchoolSchema = SchemaFactory.createForClass(School);

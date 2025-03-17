@@ -2,7 +2,7 @@
 import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
-import { Organisation } from './organisation.schemas';
+import { NotificationPreference, Organisation } from './organisation.schemas';
 import { OrganisationDto, UpdateOrganisationDto } from './organisation.dto';
 import { hashSync, compare } from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
@@ -13,6 +13,7 @@ import {
   organisationVerificationEmail,
 } from 'utils/template';
 import { MailService } from 'src/mail/mail.service';
+import { NotificationType } from 'src/notifications/notification.schemas';
 
 @Injectable()
 export class OrganisationService {
@@ -252,4 +253,19 @@ export class OrganisationService {
       throw new HttpException('An Error Occurred', 500);
     }
   }
+
+  async updateNotificationPreferences(organisationId: string, preferences: Record<NotificationType, NotificationPreference>) {
+    return this.organisationModel.findByIdAndUpdate(
+      organisationId,
+      { notificationPreferences: preferences },
+      { new: true },
+    );
+  }
+
+  async getNotificationPreferences(organisationId: string) {
+    const organisation = await this.organisationModel.findById(organisationId).lean()
+    return organisation?.notificationPreferences || {};
+  }
+
+  
 }

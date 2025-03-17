@@ -6,6 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { OrganisationModule } from './organisation/organisation.module';
 import { MailModule } from './mail/mail.module';
 import { SchoolModule } from './school/school.module';
+import { NotificationModule } from './notifications/notification.module';
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { SchoolModule } from './school/school.module';
     NewsletterModule,
     OrganisationModule,
     MailModule,
-    SchoolModule
+    SchoolModule,
+    NotificationModule
   ],
   controllers: [],
   providers: [],
