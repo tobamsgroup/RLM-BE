@@ -60,4 +60,14 @@ export class OrganisationController {
   async resendVerification(@Body() { email}) {
     return this.organisationService.resendVerificationLink(email);
   }
+
+  @Post('notification/preferences/update')
+  async updateNotificationPreferences(@Body() { organisationId, preferences}) {
+    return this.organisationService.updateNotificationPreferences(organisationId, preferences);
+  }
+
+  @Get('notification/preferences/:id')
+  async getNotificationPreferences( @Param('id') id: string,) {
+    return this.organisationService.getNotificationPreferences(id);
+  }
 }
