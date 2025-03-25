@@ -13,7 +13,8 @@ export class NotificationService {
   ) {}
 
   async getNotifications() {
-    return this.notificationModel.find();
+    const notifications = this.notificationModel.find()
+    return notifications || []
   }
 
   async sendNotification(

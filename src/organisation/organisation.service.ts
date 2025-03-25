@@ -395,15 +395,16 @@ export class OrganisationService {
 
   //billing details
   async getBillingDetails(
-    organisationId: string,
+    organisationId: string
   ) {
+    console.log({organisationId})
     if (!organisationId) {
       throw new HttpException(
         'Organisation Id Missing',
         HttpStatus.BAD_REQUEST,
       );
     }
-    const organisation = await this.findOne({_id:organisationId})
+    const organisation = await this.getOrganisation(organisationId)
    return organisation?.billingAddress || {}
   }
 

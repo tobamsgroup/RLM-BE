@@ -135,7 +135,7 @@ export class OrganisationController {
   }
 
   //billing address
-  @Get('billing-address')
+  @Get('billing-address/list')
   @UseGuards(AuthenticationGuard)
   getBillingAddress(
     @Req() req: Request,
