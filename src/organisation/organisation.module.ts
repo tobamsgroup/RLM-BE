@@ -1,10 +1,14 @@
 import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Organisation, OrganisationSchema } from './organisation.schemas';
+import {
+  Organisation,
+  OrganisationSchema,
+} from './schemas/organisation.schemas';
 import { OrganisationService } from './organisation.service';
 import { OrganisationController } from './organisation.controller';
 import { MailModule } from 'src/mail/mail.module';
 import { organisationConnectionProvider } from 'src/providers/organisation-connection.provider';
+import { RefreshToken, RefreshTokenSchema } from './schemas/refreshToken.schemas';
 
 @Global()
 @Module({
@@ -15,10 +19,14 @@ import { organisationConnectionProvider } from 'src/providers/organisation-conne
         name: Organisation.name,
         schema: OrganisationSchema,
       },
+      {
+        name: RefreshToken.name,
+        schema: RefreshTokenSchema,
+      },
     ]),
   ],
   controllers: [OrganisationController],
-  providers: [OrganisationService,  organisationConnectionProvider],
-  exports:[OrganisationService, organisationConnectionProvider]
+  providers: [OrganisationService, organisationConnectionProvider],
+  exports: [OrganisationService, organisationConnectionProvider],
 })
 export class OrganisationModule {}

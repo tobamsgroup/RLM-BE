@@ -7,10 +7,21 @@ import { OrganisationModule } from './organisation/organisation.module';
 import { MailModule } from './mail/mail.module';
 import { SchoolModule } from './school/school.module';
 import { NotificationModule } from './notifications/notification.module';
+import {JwtModule} from '@nestjs/jwt'
+import { StripeModule } from './stripe/stripe.module';
+import { SubscriptionModule } from './subscription/subscription.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    JwtModule.registerAsync({
+      imports:[ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('MONGO_URI'),
+      }),
+      global:true,
+      inject: [ConfigService]
+    }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -23,7 +34,9 @@ import { NotificationModule } from './notifications/notification.module';
     OrganisationModule,
     MailModule,
     SchoolModule,
-    NotificationModule
+    NotificationModule,
+    StripeModule,
+    SubscriptionModule
   ],
   controllers: [],
   providers: [],
