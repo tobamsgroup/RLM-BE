@@ -229,17 +229,19 @@ export class OrganisationService {
     if (!token) {
       throw new HttpException('Refresh Token is invalid', HttpStatus.BAD_REQUEST);
     }
-    return this.generateTokens(token.organisationId, token.ttl === TOKEN_TTL_LONG);
+    return this.generateTokens(token.organisationId, token.ttl === TOKEN_TTL_LONG, token.token!);
   }
 
-  async generateTokens(organisationId:mongoose.Types.ObjectId, remember:boolean) {
+  async generateTokens(organisationId:mongoose.Types.ObjectId, remember:boolean, staleRefreshToken?:string) {
     const accessToken = this.jwtService.sign({ organisationId }, { expiresIn: '3h' });
-    const refreshToken = this.jwtService.sign({ organisationId });
-
-    await this.storeRefreshToken(refreshToken, organisationId, remember);
+    let refreshToken = staleRefreshToken
+    if(!staleRefreshToken){
+      const refreshToken = this.jwtService.sign({ organisationId });
+      await this.storeRefreshToken(refreshToken, organisationId, remember);
+    }
     return {
       accessToken,
-      refreshToken,
+      refreshToken: refreshToken,
     };
   }
 
