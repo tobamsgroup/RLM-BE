@@ -133,4 +133,13 @@ export class OrganisationController {
       billingAddress,
     );
   }
+
+  //billing address
+  @Get('billing-address')
+  @UseGuards(AuthenticationGuard)
+  getBillingAddress(
+    @Req() req: Request,
+  ) {
+    return this.organisationService.getBillingDetails(req['organisationId'])
+  }
 }

@@ -393,6 +393,20 @@ export class OrganisationService {
    return {message:"successful"}
   }
 
+  //billing details
+  async getBillingDetails(
+    organisationId: string,
+  ) {
+    if (!organisationId) {
+      throw new HttpException(
+        'Organisation Id Missing',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const organisation = await this.findOne({_id:organisationId})
+   return organisation?.billingAddress || {}
+  }
+
   //payment
   async addPaymentMethod(organisationId: string, dto:any) {
     if (!organisationId) {
