@@ -236,7 +236,7 @@ export class OrganisationService {
     const accessToken = this.jwtService.sign({ organisationId }, { expiresIn: '3h' });
     let refreshToken = staleRefreshToken
     if(!staleRefreshToken){
-      const refreshToken = this.jwtService.sign({ organisationId });
+      refreshToken = this.jwtService.sign({ organisationId });
       await this.storeRefreshToken(refreshToken, organisationId, remember);
     }
     return {
