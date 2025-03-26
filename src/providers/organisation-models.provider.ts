@@ -1,5 +1,6 @@
 import { Connection } from 'mongoose';
 import { Notification, NotificationSchema } from 'src/notifications/notification.schemas';
+import { Resources, ResourcesSchema } from 'src/resources/resources.schema';
 import { School, SchoolSchema } from 'src/school/school.schemas';
 
 /**
@@ -22,6 +23,14 @@ export const organisationModels = {
     provide: 'NOTIFICATION_MODEL',
     useFactory: async (organisationConnection: Connection) => {
       return organisationConnection.model(Notification.name, NotificationSchema);
+    },
+    inject: ['ORGANISATION_CONNECTION'],
+  },
+
+  resourcesModel: {
+    provide: 'RESOURCES_MODEL',
+    useFactory: async (organisationConnection: Connection) => {
+      return organisationConnection.model(Resources.name, ResourcesSchema);
     },
     inject: ['ORGANISATION_CONNECTION'],
   },

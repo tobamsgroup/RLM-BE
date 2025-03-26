@@ -10,6 +10,8 @@ import { NotificationModule } from './notifications/notification.module';
 import {JwtModule} from '@nestjs/jwt'
 import { StripeModule } from './stripe/stripe.module';
 import { SubscriptionModule } from './subscription/subscription.module';
+import { FileUploadModule } from './file-upload/file-upload.module';
+import { ResourcesModule } from './resources/resources.module';
 
 @Module({
   imports: [
@@ -36,7 +38,9 @@ import { SubscriptionModule } from './subscription/subscription.module';
     SchoolModule,
     NotificationModule,
     StripeModule,
-    SubscriptionModule
+    SubscriptionModule,
+    FileUploadModule,
+    ResourcesModule
   ],
   controllers: [],
   providers: [],
