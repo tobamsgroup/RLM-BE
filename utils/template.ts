@@ -405,3 +405,44 @@ export const organisationPasswordResetEmail = ({ name, resetLink }) => {
             </div>
     `);
 };
+
+export const schoolUserAdditionEmail = ( name:string, password:string, schoolName:string, domain:string, email:string, role:string ) => {
+  return emailHeaderFooter(`
+      <div>
+              <p style="font-size: 24px; font-weight: 600">
+              You have been added as a School ${role} for ${schoolName}
+              </p>
+              <br />
+              <p style="font-size: 18px; font-weight: 600">
+                Hello ${name}
+              </p>
+              <p style="color: #6c686c; font-size: 18px">
+                You have been added as a School ${role} for ${schoolName}, 
+                please login using the following details:
+                <br/>
+                Email: ${email}
+                <br/>
+                Password: ${password}
+                <br/>
+                Login: ${domain}/login
+                <br>
+                You can change your password after logging in.
+              </p>
+              <br />
+              <br />
+              <p>
+              Please note, If you don't login in the next 3 days, this invite will be revoked.
+              </p>
+              <br />
+              <br />
+
+              <p style="color: #6c686c; font-size: 18px">
+                Thank you for choosing Recycled Learning!
+              </p>
+              <p style="color: #6c686c; font-size: 18px">Warm regards,</p>
+              <p style="color: #221d23; font-size: 18px; font-weight: 600">
+                The Recycled Learning Team
+              </p>
+            </div>
+    `);
+};

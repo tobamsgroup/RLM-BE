@@ -12,6 +12,7 @@ import { StripeModule } from './stripe/stripe.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { FileUploadModule } from './file-upload/file-upload.module';
 import { ResourcesModule } from './resources/resources.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -40,7 +41,8 @@ import { ResourcesModule } from './resources/resources.module';
     StripeModule,
     SubscriptionModule,
     FileUploadModule,
-    ResourcesModule
+    ResourcesModule,
+    UsersModule
   ],
   controllers: [],
   providers: [],

@@ -22,6 +22,7 @@ import { NotificationModule } from 'src/notifications/notification.module';
   ],
   controllers: [SchoolController],
   providers: [SchoolService, organisationModels.schoolModel, NotificationService],
+  exports: [SchoolService, organisationModels.schoolModel, NotificationService],
 })
 
 export class SchoolModule implements NestModule {

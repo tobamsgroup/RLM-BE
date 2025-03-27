@@ -2,6 +2,7 @@ import { Connection } from 'mongoose';
 import { Notification, NotificationSchema } from 'src/notifications/notification.schemas';
 import { Resources, ResourcesSchema } from 'src/resources/resources.schema';
 import { School, SchoolSchema } from 'src/school/school.schemas';
+import { User, UserSchema } from 'src/users/users.schema';
 
 /**
  * Multitenancy approach to get the correct organisation db and correct model
@@ -31,6 +32,14 @@ export const organisationModels = {
     provide: 'RESOURCES_MODEL',
     useFactory: async (organisationConnection: Connection) => {
       return organisationConnection.model(Resources.name, ResourcesSchema);
+    },
+    inject: ['ORGANISATION_CONNECTION'],
+  },
+
+  usersModel: {
+    provide: 'USERS_MODEL',
+    useFactory: async (organisationConnection: Connection) => {
+      return organisationConnection.model(User.name, UserSchema);
     },
     inject: ['ORGANISATION_CONNECTION'],
   },

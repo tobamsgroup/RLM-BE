@@ -53,6 +53,9 @@ export class School {
   @Prop({ type: Types.ObjectId, ref: 'Organisation', required: true }) 
   organisation: Types.ObjectId;
 
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }] })
+  users: Types.ObjectId[]
+
 }
 
 export enum SchoolStatus {

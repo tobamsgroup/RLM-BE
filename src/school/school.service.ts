@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { Model, RootFilterQuery, Types } from 'mongoose';
 import { School } from './school.schemas';
 import { CreateSchoolDto } from './school.dto';
 import { NotificationService } from 'src/notifications/notification.service';
@@ -44,5 +44,17 @@ export class SchoolService {
     });
 
     return school
+  }
+
+  async findOne(filter:RootFilterQuery<School>){
+    return this.SchoolModel.findOne(filter);
+  }
+
+  async addSchoolUser(id:Types.ObjectId, schoolId:Types.ObjectId){
+   return await this.SchoolModel.findByIdAndUpdate(
+      schoolId, 
+      { $addToSet: { users: id} }, 
+      { new: true }
+    );
   }
 }
