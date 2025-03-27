@@ -20,7 +20,7 @@ export class FileUploadController {
 
   @Post()
   @UseInterceptors(FileInterceptor('file'))
-  @UseGuards(AuthenticationGuard)
+  // @UseGuards(AuthenticationGuard)
   async uploadFile(
     @UploadedFile(
       new ParseFilePipe({
@@ -33,6 +33,6 @@ export class FileUploadController {
     @Req () req:Request,
     @Query('type') type?: "image" | "video" | "document"
   ) {
-    return await this.fileUploadService.upload(file.originalname, file.buffer, file.mimetype, req['organisationId'], type);
+    return await this.fileUploadService.upload(file.originalname, file.buffer, file.mimetype, req.headers['x-organisation-id'] as string, type);
   }
 }
