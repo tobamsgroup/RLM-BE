@@ -1,5 +1,6 @@
 /* eslint-disable */
 import {
+  BadRequestException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -29,11 +30,11 @@ import { MailService } from 'src/mail/mail.service';
 import { NotificationType } from 'src/notifications/notification.schemas';
 import { JwtService } from '@nestjs/jwt';
 import { RefreshToken } from './schemas/refreshToken.schemas';
-import {v4} from 'uuid'
+import { v4 } from 'uuid';
+import { ActivityLogsService } from 'src/activityLogs/activityLogs.service';
 
-
-const TOKEN_TTL_LONG = 7
-const TOKEN_TTL_SHORT = 2
+const TOKEN_TTL_LONG = 7;
+const TOKEN_TTL_SHORT = 2;
 
 @Injectable()
 export class OrganisationService {
@@ -64,14 +65,11 @@ export class OrganisationService {
       email: organisationDto?.email?.toLowerCase(),
     });
 
-
     //Send creation and verification email
     const secret = this.configService.get('JWT_TOKEN');
-    const token = sign(
-      { token: newOrganisation._id },
-      secret,
-      { expiresIn: '24h' },
-    );
+    const token = sign({ token: newOrganisation._id }, secret, {
+      expiresIn: '24h',
+    });
     const link = `${this.configService.get('SITE_URL')}/verify-email?token=${token}`;
     try {
       const res = await this.mailService.sendEmail(
@@ -88,7 +86,7 @@ export class OrganisationService {
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
-      return {message:"succesful"}
+      return { message: 'succesful' };
     } catch (error) {
       throw new HttpException(
         'An Error Occurred',
@@ -104,8 +102,8 @@ export class OrganisationService {
     const updatedOrganisation = await this.organisationModel
       .findByIdAndUpdate(
         id,
-        { $set: updateOrganisationDto }, // Updates only the provided fields
-        { new: true, runValidators: true }, // Returns the updated document
+        { $set: updateOrganisationDto },
+        { new: true, runValidators: true },
       )
       .select('-password');
 
@@ -119,10 +117,11 @@ export class OrganisationService {
   async googleAuth(email: string) {
     const isExist = await this.organisationModel
       .findOne({ email: { $regex: new RegExp(`^${email}$`, 'i') } })
-      .select('-password').lean()
+      .select('-password')
+      .lean();
     if (isExist) {
-      const tokens = await  this.generateTokens(isExist?._id!, false)
-      return {...this.cleanOrganisationData(isExist), ...tokens}
+      const tokens = await this.generateTokens(isExist?._id!, false);
+      return { ...this.cleanOrganisationData(isExist), ...tokens };
     }
 
     const newOrganisation = await this.organisationModel.create({
@@ -139,11 +138,19 @@ export class OrganisationService {
       password: '',
       phoneNumber: '',
       typeOfOrganisation: '',
-    })
+    });
 
-    const {password, paymentMethods, schools, subscription, billingAddress, country, ...cleanData} = newOrganisation.toObject()
-    const tokens = await  this.generateTokens(newOrganisation?._id!, false)
-    return {...cleanData, ...tokens}
+    const {
+      password,
+      paymentMethods,
+      schools,
+      subscription,
+      billingAddress,
+      country,
+      ...cleanData
+    } = newOrganisation.toObject();
+    const tokens = await this.generateTokens(newOrganisation?._id!, false);
+    return { ...cleanData, ...tokens };
   }
 
   async verifyEmail(token: string) {
@@ -172,15 +179,14 @@ export class OrganisationService {
     if (!isValid) {
       throw new HttpException('Organisation not found', HttpStatus.NOT_FOUND);
     }
-    const targetOrganisation = await this.organisationModel
-      .findById(id).lean()
+    const targetOrganisation = await this.organisationModel.findById(id).lean();
     if (!targetOrganisation) {
       throw new HttpException('Organisation not found', HttpStatus.NOT_FOUND);
     }
-    return targetOrganisation
+    return targetOrganisation;
   }
 
-  async login(email: string, lpassword: string, remember:boolean = false) {
+  async login(email: string, lpassword: string, remember: boolean = false) {
     if (!email || !lpassword) {
       throw new HttpException(
         'invalid Email or Password!',
@@ -189,7 +195,8 @@ export class OrganisationService {
     }
 
     const targetOrganisation = await this.organisationModel
-      .findOne({ email: { $regex: new RegExp(`^${email}$`, 'i') } }).lean()
+      .findOne({ email: { $regex: new RegExp(`^${email}$`, 'i') } })
+      .lean();
 
     if (!targetOrganisation) {
       throw new HttpException(
@@ -197,13 +204,19 @@ export class OrganisationService {
         HttpStatus.NOT_FOUND,
       );
     }
+
     if (!targetOrganisation.password) {
       throw new HttpException(
         'Please login via google.',
         HttpStatus.BAD_REQUEST,
       );
     }
-
+    if (targetOrganisation.closed) {
+      throw new HttpException(
+        'Organisation Account Closed',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
 
     if (!(await compare(lpassword, targetOrganisation.password))) {
       throw new HttpException(
@@ -216,7 +229,10 @@ export class OrganisationService {
       //send mfa  link
     }
 
-    const tokens = await  this.generateTokens(targetOrganisation?._id!, remember)
+    const tokens = await this.generateTokens(
+      targetOrganisation?._id!,
+      remember,
+    );
     return { ...this.cleanOrganisationData(targetOrganisation), ...tokens };
   }
 
@@ -227,15 +243,29 @@ export class OrganisationService {
     });
 
     if (!token) {
-      throw new HttpException('Refresh Token is invalid', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Refresh Token is invalid',
+        HttpStatus.BAD_REQUEST,
+      );
     }
-    return this.generateTokens(token.organisationId, token.ttl === TOKEN_TTL_LONG, token.token!);
+    return this.generateTokens(
+      token.organisationId,
+      token.ttl === TOKEN_TTL_LONG,
+      token.token!,
+    );
   }
 
-  async generateTokens(organisationId:mongoose.Types.ObjectId, remember:boolean, staleRefreshToken?:string) {
-    const accessToken = this.jwtService.sign({ organisationId }, { expiresIn: '3h' });
-    let refreshToken = staleRefreshToken
-    if(!staleRefreshToken){
+  async generateTokens(
+    organisationId: mongoose.Types.ObjectId,
+    remember: boolean,
+    staleRefreshToken?: string,
+  ) {
+    const accessToken = this.jwtService.sign(
+      { organisationId },
+      { expiresIn: '3h' },
+    );
+    let refreshToken = staleRefreshToken;
+    if (!staleRefreshToken) {
       refreshToken = this.jwtService.sign({ organisationId });
       await this.storeRefreshToken(refreshToken, organisationId, remember);
     }
@@ -245,13 +275,17 @@ export class OrganisationService {
     };
   }
 
-  async storeRefreshToken(token: string,organisationId: mongoose.Types.ObjectId, remember:boolean) {
-    const ttl = remember ? TOKEN_TTL_LONG : TOKEN_TTL_SHORT 
+  async storeRefreshToken(
+    token: string,
+    organisationId: mongoose.Types.ObjectId,
+    remember: boolean,
+  ) {
+    const ttl = remember ? TOKEN_TTL_LONG : TOKEN_TTL_SHORT;
     const expiryDate = new Date();
     expiryDate.setDate(expiryDate.getDate() + ttl);
 
     await this.RefreshTokenModel.updateOne(
-      {organisationId },
+      { organisationId },
       { $set: { expiryDate, token } },
       {
         upsert: true,
@@ -306,7 +340,8 @@ export class OrganisationService {
     try {
       const decoded = verify(token, this.configService.get('JWT_TOKEN')!);
       const hashPassword = hashSync(password, 10);
-      return await this.organisationModel.findByIdAndUpdate(
+
+      await this.organisationModel.findByIdAndUpdate(
         //@ts-ignore
         decoded.token,
         { password: hashPassword },
@@ -318,6 +353,29 @@ export class OrganisationService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+  async changePassword(id: string, oldPassword: string, newPassword: string) {
+      if (!id || !oldPassword || !newPassword) {
+        throw new BadRequestException('Missing Parameters');
+      }
+
+      const targetOrganisation = await this.organisationModel.findById(id)
+
+      if (!targetOrganisation?.password! || targetOrganisation?.isGoogleSignUp) {
+        throw new BadRequestException("Seems you registered with Google, You can't change password");
+      }
+  
+      if (!(await compare(oldPassword, targetOrganisation.password!))) {
+        throw new BadRequestException('Wrong Password');
+      }
+
+      const hashPassword = hashSync(newPassword, 10);
+  
+      await this.organisationModel.findByIdAndUpdate(
+        id,
+        { password: hashPassword },
+        { new: true },
+      );
   }
 
   async resendVerificationLink(email: string) {
@@ -384,49 +442,62 @@ export class OrganisationService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const updatedOrganisation = await this.organisationModel.findOneAndUpdate(
+
+    await this.organisationModel.findOneAndUpdate(
       { _id: organisationId },
       { $set: { billingAddress: billingDetails } },
       { new: true, upsert: true },
     );
 
-   return {message:"successful"}
+    return { message: 'successful' };
   }
 
   //billing details
-  async getBillingDetails(
-    organisationId: string
-  ) {
-    console.log({organisationId})
+  async getBillingDetails(organisationId: string) {
     if (!organisationId) {
       throw new HttpException(
         'Organisation Id Missing',
         HttpStatus.BAD_REQUEST,
       );
     }
-    const organisation = await this.getOrganisation(organisationId)
-   return organisation?.billingAddress || {}
+    const organisation = await this.getOrganisation(organisationId);
+    return organisation?.billingAddress || {};
   }
 
   //payment
-  async addPaymentMethod(organisationId: string, dto:any) {
+  async addPaymentMethod(organisationId: string, dto: any) {
     if (!organisationId) {
-      throw new HttpException( 'Organisation Id Missing',  HttpStatus.BAD_REQUEST);
-    }
-
-    if (dto.isDefault) {
-      await this.organisationModel.updateOne(
-        { _id: organisationId, "paymentMethods.0": { $exists: true } },
-        { $set: { "paymentMethods.$[].isDefault": false } }
+      throw new HttpException(
+        'Organisation Id Missing',
+        HttpStatus.BAD_REQUEST,
       );
     }
 
-    await  this.organisationModel.findByIdAndUpdate(
+    const isFirstCard =
+      (await this.getOrganisation(organisationId)).paymentMethods?.length === 0;
+
+    if (dto.isDefault) {
+      await this.organisationModel.updateOne(
+        { _id: organisationId, 'paymentMethods.0': { $exists: true } },
+        { $set: { 'paymentMethods.$[].isDefault': false } },
+      );
+    }
+
+    await this.organisationModel.findByIdAndUpdate(
       organisationId,
-      { $push: { paymentMethods: {id: v4() , ...dto} } },
+      {
+        $push: {
+          paymentMethods: {
+            id: v4(),
+            isDefault: isFirstCard ? true : dto.isDefault,
+            ...dto,
+          },
+        },
+      },
       { new: true },
     );
-    return {message:"successful"}
+
+    return { message: 'successful' };
   }
 
   async deletePaymentMethod(organisationId: string, paymentMethodId: string) {
@@ -438,7 +509,7 @@ export class OrganisationService {
       { $pull: { paymentMethods: { id: paymentMethodId } } },
       { new: true },
     );
-    return {message:"successful"}
+    return { message: 'successful' };
   }
   async fetchPaymentMethods(organisationId: string) {
     if (!organisationId) {
@@ -465,29 +536,99 @@ export class OrganisationService {
       { _id: organisationId, 'paymentMethods.id': paymentMethodId },
       {
         $set: {
-          'paymentMethods.$': {id:paymentMethodId, ...updateData},
+          'paymentMethods.$': { id: paymentMethodId, ...updateData },
         },
       },
       { new: true },
     );
 
-    return {message:"successful"}
+    return { message: 'successful' };
   }
 
-  async saveStripeCustomerId(organisationId:string, id:string){
+  async saveStripeCustomerId(organisationId: string, id: string) {
     await this.organisationModel.findOneAndUpdate(
-      { _id:organisationId}, 
-      { $set: { stripeCustomerId:id} },
-    )
+      { _id: organisationId },
+      { $set: { stripeCustomerId: id } },
+    );
   }
 
-   async findOne(filter:RootFilterQuery<Organisation>) {
-     return await this.organisationModel.findOne(filter)
-   }
+  async getSubscription(organisationId: string) {
+    if (!organisationId) {
+      throw new HttpException(
+        'Organisation Id Missing',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const organisation = await this.organisationModel
+      .findById(organisationId)
+      .select('subscription')
+      .populate('subscription');
 
-  cleanOrganisationData (organisation:mongoose.FlattenMaps<Organisation>){
-    const {password, paymentMethods, schools, subscription, billingAddress, country, ...cleanData} = organisation
-    console.log({cleanData})
-    return cleanData
-   }
+    return organisation?.subscription || {};
+  }
+
+  async findOne(filter: RootFilterQuery<Organisation>) {
+    return await this.organisationModel.findOne(filter);
+  }
+
+  async getProfile(id: string) {
+    const data = await this.organisationModel.findById(id).lean();
+    if (!data) {
+      throw new NotFoundException('Organisation Not Found');
+    }
+    return {
+      ...this.cleanOrganisationData(data),
+      isGoogleSignUp: !data.password || data.isGoogleSignUp,
+    };
+  }
+
+  async toggleMfa(password: string, id: string) {
+    const targetOrganisation = await this.organisationModel.findById(id).lean();
+    if (!targetOrganisation) {
+      throw new NotFoundException('Organisation Not Found');
+    }
+
+    const isGoogleSignUp =
+      targetOrganisation.isGoogleSignUp || !targetOrganisation.password;
+
+    if (!isGoogleSignUp) {
+      if (!password) {
+        throw new BadRequestException('Password missing');
+      }
+
+      if (!(await compare(password, targetOrganisation.password))) {
+        throw new BadRequestException('Invalid Passowrd!');
+      }
+    }
+
+    await this.organisationModel.findOneAndUpdate(
+      { _id: id },
+      { $set: { mfaEnabled: !targetOrganisation.mfaEnabled } },
+    );
+  }
+
+  async closeAccount(id: string, reason?:string) {
+    const targetOrganisation = await this.organisationModel.findById(id).lean();
+    if (!targetOrganisation) {
+      throw new NotFoundException('Organisation Not Found');
+    }
+
+    await this.organisationModel.findOneAndUpdate(
+      { _id: id },
+      { $set: { closed:true, closedAt: new Date(), closureReason:reason } },
+    );
+
+  }
+
+  cleanOrganisationData(organisation: mongoose.FlattenMaps<Organisation>) {
+    const {
+      password,
+      paymentMethods,
+      schools,
+      subscription,
+      billingAddress,
+      ...cleanData
+    } = organisation;
+    return cleanData;
+  }
 }

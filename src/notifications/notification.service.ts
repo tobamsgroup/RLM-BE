@@ -13,8 +13,19 @@ export class NotificationService {
   ) {}
 
   async getNotifications() {
-    const notifications = this.notificationModel.find()
-    return notifications || []
+    const notifications = await this.notificationModel
+    .find()
+    .sort({ createdAt: -1 }); 
+  
+  return notifications || [];
+  }
+
+  async createNotification(
+    organisationId: string,
+    type: NotificationType,
+    data: any,
+  ) {
+   await this.sendNotification(organisationId, type, data)
   }
 
   async sendNotification(
@@ -24,21 +35,44 @@ export class NotificationService {
   ) {
     const organisation =
       await this.organisationService.getOrganisation(organisationId);
-    const preferences = organisation?.notificationPreferences[type] || {
+    const preferences = organisation?.notificationPreferences?.[type] || {
       inApp: true,
       email: false,
     };
 
+
     if (preferences.inApp) {
-      await this.notificationModel.create({
+     const notification = await this.notificationModel.create({
         organisation: organisationId,
         type,
         data,
       });
+
+      return notification
     }
+
+
 
     if (preferences.email) {
       //send email
     }
   }
+
+  async deleteNotifications(notificationIds:string[]){
+    if(notificationIds?.length < 1) return
+     await this.notificationModel.deleteMany({
+      _id: { $in: notificationIds },
+    });
+  }
+  async unreadCount(): Promise<number> {
+    return await this.notificationModel.countDocuments({ read: false });
+  }
+
+  async markAllAsRead() {
+    await this.notificationModel.updateMany(
+      { read: false },
+      { $set: { read: true } }
+    );
+  }
+  
 }

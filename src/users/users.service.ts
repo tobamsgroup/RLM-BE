@@ -82,7 +82,7 @@ export class UsersService {
   }
 
   async findAll(): Promise<UserDocument[]> {
-    return this.userModel.find().exec();
+    return this.userModel.find().populate('schoolRoles.school').exec();
   }
 
   async findById(id: Types.ObjectId): Promise<UserDocument> {

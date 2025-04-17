@@ -5,6 +5,7 @@ import { Subscription, SubscriptionSchema } from './subscription.schemas';
 import { SubscriptionService } from './subscription.service';
 import { SubscriptionController } from './subscription.controller';
 import { StripeModule } from 'src/stripe/stripe.module';
+import { InvoiceModule } from 'src/invoice/invoice.module';
 
 @Module({
   imports: [
@@ -14,7 +15,8 @@ import { StripeModule } from 'src/stripe/stripe.module';
         schema: SubscriptionSchema,
       },
     ]),
-    MailModule
+    MailModule,
+    InvoiceModule
  ],
   controllers:[SubscriptionController],
   providers: [SubscriptionService],

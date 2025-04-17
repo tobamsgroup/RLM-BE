@@ -4,6 +4,7 @@ import {
   Inject,
   Injectable,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
@@ -57,18 +58,23 @@ export class StripeService {
     }
   }
 
-
   async createSubscription(
     organisationId: string,
     priceId: string,
     paymentMethodId: string,
-  ): Promise<Stripe.Subscription> {
+  ) {
     try {
       let stripeCustomerId = (
         await this.organisationService.getOrganisation(organisationId)
       )?.stripeCustomerId;
       if (!stripeCustomerId) {
         stripeCustomerId = await this.createCustomer(organisationId);
+      }
+
+      const paymentMethod = await this.stripe.paymentMethods.retrieve(paymentMethodId);
+
+      if (paymentMethod.customer !== stripeCustomerId) {
+        this.attachPaymentMethod(stripeCustomerId, paymentMethodId)
       }
       const subscription = await this.stripe.subscriptions.create({
         customer: stripeCustomerId,
@@ -91,10 +97,10 @@ export class StripeService {
         nextBillingDate: new Date(subscription.current_period_end * 1000),
         name: targetPlan.name,
       };
-      await this.subscriptionService.saveSubscription(subscriptionDetails);
+     const data = await this.subscriptionService.saveSubscription(subscriptionDetails);
 
       // TODO: send successful email
-      return subscription;
+      return data
     } catch (error) {
       this.logger.error('Failed to create subscription', error.stack);
       throw new HttpException(
@@ -280,7 +286,6 @@ export class StripeService {
     }
   }
 
-
   async createPaymentLink(priceId: string): Promise<Stripe.PaymentLink> {
     try {
       const paymentLink = await this.stripe.paymentLinks.create({
@@ -302,12 +307,15 @@ export class StripeService {
     let event: Stripe.Event;
     const webhookSecret = this.configService.get('STRIPE_WEBHOOK_SECRET')!;
 
-
     try {
       if (!sig || !webhookSecret) {
         throw new Error();
       }
-      event = this.stripe.webhooks.constructEvent( req.body as any, sig, webhookSecret);
+      event = this.stripe.webhooks.constructEvent(
+        req.body as any,
+        sig,
+        webhookSecret,
+      );
     } catch (err: any) {
       console.error('Webhook signature verification failed.', err.message);
       throw new HttpException(
@@ -401,27 +409,39 @@ export class StripeService {
         : null,
     };
 
-    console.log({subscription})
 
     await this.subscriptionService.saveSubscription(subscriptionDetails);
-
   }
 
-  async pauseSubscription(subscriptionId:string){
-   return await this.stripe.subscriptions.update(subscriptionId, {
-      pause_collection: { behavior: "void" }
-    })
+  async pauseSubscription(subscriptionId: string) {
+    return await this.stripe.subscriptions.update(subscriptionId, {
+      pause_collection: { behavior: 'void' },
+    });
   }
-  async resumeSubscription(subscriptionId:string){
+  async resumeSubscription(subscriptionId: string) {
     await this.stripe.subscriptions.update(subscriptionId, {
-      pause_collection: null
-    })
+      pause_collection: null,
+    });
   }
 
-  async cancelSubscription(subscriptionId:string){
-    await this.stripe.subscriptions.update(subscriptionId, {
-      cancel_at_period_end: true,
-    })
+  async cancelSubscription(id: string, reason?: string) {
+    const subscription = await this.subscriptionService.findOne({ _id: id });
+    if (!subscription) {
+      throw new NotFoundException('Subscription not found');
+    }
+
+    await this.stripe.subscriptions.update(
+      subscription.paymentSubscriptionId!,
+      {
+        cancel_at_period_end: true,
+      },
+    );
+
+    await this.subscriptionService.updateSubscriptionStatus(
+      id,
+      SubscriptionStatus.CANCELED,
+      reason,
+    );
   }
 
   getNewStatus(status: Stripe.Subscription.Status): SubscriptionStatus {

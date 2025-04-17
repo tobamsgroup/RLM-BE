@@ -1,5 +1,13 @@
 import { Connection } from 'mongoose';
-import { Notification, NotificationSchema } from 'src/notifications/notification.schemas';
+import {
+  ActivityLogs,
+  ActivityLogsSchema,
+} from 'src/activityLogs/activityLogs.schema';
+import { Invoice, InvoiceSchema } from 'src/invoice/invoice.schema';
+import {
+  Notification,
+  NotificationSchema,
+} from 'src/notifications/notification.schemas';
 import { Resources, ResourcesSchema } from 'src/resources/resources.schema';
 import { School, SchoolSchema } from 'src/school/school.schemas';
 import { User, UserSchema } from 'src/users/users.schema';
@@ -8,7 +16,7 @@ import { User, UserSchema } from 'src/users/users.schema';
  * Multitenancy approach to get the correct organisation db and correct model
  * this injects the ORGANISATION_CONNECTION provider to get the correct databse
  * and return the correct model.
- * 
+ *
  * Any new model that is used within the multitenancy should be added here.
  */
 export const organisationModels = {
@@ -23,7 +31,10 @@ export const organisationModels = {
   notificationModel: {
     provide: 'NOTIFICATION_MODEL',
     useFactory: async (organisationConnection: Connection) => {
-      return organisationConnection.model(Notification.name, NotificationSchema);
+      return organisationConnection.model(
+        Notification.name,
+        NotificationSchema,
+      );
     },
     inject: ['ORGANISATION_CONNECTION'],
   },
@@ -40,6 +51,25 @@ export const organisationModels = {
     provide: 'USERS_MODEL',
     useFactory: async (organisationConnection: Connection) => {
       return organisationConnection.model(User.name, UserSchema);
+    },
+    inject: ['ORGANISATION_CONNECTION'],
+  },
+
+  invoiceModel: {
+    provide: 'INVOICE_MODEL',
+    useFactory: async (organisationConnection: Connection) => {
+      return organisationConnection.model(Invoice.name, InvoiceSchema);
+    },
+    inject: ['ORGANISATION_CONNECTION'],
+  },
+
+  activityLogsModel: {
+    provide: 'ACTIVITY_LOGS_MODEL',
+    useFactory: async (organisationConnection: Connection) => {
+      return organisationConnection.model(
+        ActivityLogs.name,
+        ActivityLogsSchema,
+      );
     },
     inject: ['ORGANISATION_CONNECTION'],
   },

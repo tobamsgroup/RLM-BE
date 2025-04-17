@@ -26,7 +26,8 @@ export enum NotificationType {
     PermissionUpdate = 'PermissionUpdate',
     SystemAlerts = 'SystemAlerts',
     AnalyticsUpdate = 'AnalyticsUpdate',
-    PaymentAndBilling = 'PaymentAndBilling'
+    PaymentAndBilling = 'PaymentAndBilling',
+    RegistrationAndSetup = 'RegistrationAndSetup',
   }
 
 export type NotificationDocument = HydratedDocument<Notification>;

@@ -4,12 +4,14 @@ import { School } from './school.schemas';
 import { CreateSchoolDto } from './school.dto';
 import { NotificationService } from 'src/notifications/notification.service';
 import { NotificationType } from 'src/notifications/notification.schemas';
+import { ActivityLogsService } from 'src/activityLogs/activityLogs.service';
 
 @Injectable()
 export class SchoolService {
   constructor(
     @Inject('SCHOOL_MODEL') private SchoolModel: Model<School>,
     private readonly notificationService: NotificationService,
+    private activityLogService: ActivityLogsService,
   ) {}
 
   async getSchools() {
@@ -23,7 +25,7 @@ export class SchoolService {
       throw new HttpException('School Already Exist', HttpStatus.CONFLICT);
     }
 
-   const school = await this.SchoolModel.create({
+    const school = await this.SchoolModel.create({
       ...schoolDto,
     });
 
@@ -43,18 +45,20 @@ export class SchoolService {
       }
     });
 
-    return school
+    return school;
   }
 
-  async findOne(filter:RootFilterQuery<School>){
+  async findOne(filter: RootFilterQuery<School>) {
     return this.SchoolModel.findOne(filter);
   }
 
-  async addSchoolUser(id:Types.ObjectId, schoolId:Types.ObjectId){
-   return await this.SchoolModel.findByIdAndUpdate(
-      schoolId, 
-      { $addToSet: { users: id} }, 
-      { new: true }
+  async addSchoolUser(id: Types.ObjectId, schoolId: Types.ObjectId) {
+    const school = await this.SchoolModel.findByIdAndUpdate(
+      schoolId,
+      { $addToSet: { users: id } },
+      { new: true },
     );
+
+    return school;
   }
 }

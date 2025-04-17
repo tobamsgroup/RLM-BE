@@ -1,4 +1,4 @@
-import { Global, Module } from '@nestjs/common';
+import { Global, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import {
   Organisation,
@@ -9,6 +9,7 @@ import { OrganisationController } from './organisation.controller';
 import { MailModule } from 'src/mail/mail.module';
 import { organisationConnectionProvider } from 'src/providers/organisation-connection.provider';
 import { RefreshToken, RefreshTokenSchema } from './schemas/refreshToken.schemas';
+import { OrganisationMiddleware } from 'src/midddlewares/organisation.middleware';
 
 @Global()
 @Module({

@@ -1,19 +1,25 @@
-import {  Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
 import { SubscriptionService } from './subscription.service';
+import { AuthenticationGuard } from 'src/guards/authentication.guard';
 
 @Controller('subscription')
 export class SubscriptionController {
-    constructor (
-        private readonly subscriptionService: SubscriptionService,
-    ){}
+  constructor(private readonly subscriptionService: SubscriptionService) {}
 
-    @Get('list')
-    listSubscriptions(){
-       return this.subscriptionService.list()
-    }
+  @Get('list')
+  @UseGuards(AuthenticationGuard)
+  listSubscriptions(@Req() req: Request) {
+    return this.subscriptionService.list(req['organisationId']);
+  }
 
-    // @Get('pause')
-    // pauseSubscription(@Param() {id}){
-    //    return this.subscriptionService.pauseSubscription(id)
-    // }
+  @Get(':id')
+  @UseGuards(AuthenticationGuard)
+  findSubscription(@Req() req: Request, @Param('id') id:string) {
+    return this.subscriptionService.findSubscription(req['organisationId'], id);
+  }
+
+  // @Get('pause')
+  // pauseSubscription(@Param() {id}){
+  //    return this.subscriptionService.pauseSubscription(id)
+  // }
 }

@@ -39,9 +39,13 @@ export class OrganisationController {
     return await this.organisationService.listOrganisations();
   }
 
-  @Get(':id')
-  async getOrganisation(@Param('id') id: string) {
-    return await this.organisationService.getOrganisation(id);
+  @Post('change-password')
+  @UseGuards(AuthenticationGuard)
+  async changePassword(
+    @Body() {  oldPassword, newPassword },
+    @Req() req: Request
+  ) {
+    return await this.organisationService.changePassword(req['organisationId'], oldPassword, newPassword);
   }
 
   @Patch('/update/:id')
@@ -58,10 +62,9 @@ export class OrganisationController {
 
   @Post('login')
   async login(@Body() { email, password, remember }) {
-    console.log({email, password, remember})
     return this.organisationService.login(email, password, remember);
   }
-  
+
   @Post('google/auth')
   async googleLogin(@Body() { email }) {
     return this.organisationService.googleAuth(email);
@@ -87,9 +90,17 @@ export class OrganisationController {
     return this.organisationService.resendVerificationLink(email);
   }
 
+  @Post('toggle-mfa')
+  async toggleMfa(@Body() { password, id }) {
+    return this.organisationService.toggleMfa(password, id);
+  }
+
   @Post('notification/preferences/update')
   @UseGuards(AuthenticationGuard)
-  async updateNotificationPreferences(@Body() { preferences }, @Req() req: Request) {
+  async updateNotificationPreferences(
+    @Body() { preferences },
+    @Req() req: Request,
+  ) {
     return this.organisationService.updateNotificationPreferences(
       req['organisationId'],
       preferences,
@@ -102,11 +113,10 @@ export class OrganisationController {
     return this.organisationService.getNotificationPreferences(id);
   }
 
-
   @Get('payment-method/list')
   @UseGuards(AuthenticationGuard)
   listPaymentMethod(@Req() req: Request) {
-    return this.organisationService.fetchPaymentMethods(  req['organisationId']);
+    return this.organisationService.fetchPaymentMethods(req['organisationId']);
   }
 
   @Delete('payment-method/delete/:paymentMethodId')
@@ -137,9 +147,29 @@ export class OrganisationController {
   //billing address
   @Get('billing-address/list')
   @UseGuards(AuthenticationGuard)
-  getBillingAddress(
-    @Req() req: Request,
-  ) {
-    return this.organisationService.getBillingDetails(req['organisationId'])
+  getBillingAddress(@Req() req: Request) {
+    return this.organisationService.getBillingDetails(req['organisationId']);
+  }
+
+  @Get('subscription')
+  @UseGuards(AuthenticationGuard)
+  getSubscription(@Req() req: Request) {
+    return this.organisationService.getSubscription(req['organisationId']);
+  }
+
+  @Get('close-account')
+  @UseGuards(AuthenticationGuard)
+  closeAccount(@Req() req: Request, @Body() { reason}) {
+    return this.organisationService.closeAccount(req['organisationId'], reason);
+  }
+
+  @Get(':id')
+  async getOrganisation(@Param('id') id: string) {
+    return await this.organisationService.getOrganisation(id);
+  }
+
+  @Get('profile/:id')
+  async getProfile(@Param('id') id: string) {
+    return await this.organisationService.getProfile(id);
   }
 }

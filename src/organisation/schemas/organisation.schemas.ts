@@ -111,7 +111,7 @@ export class Organisation {
   @Prop({ type: [{ type: Types.ObjectId, ref: 'School' }] })
   schools: Types.ObjectId[];
 
-  @Prop({ type: { type: Types.ObjectId, ref: 'Subscription' } })
+  @Prop({ type: Types.ObjectId, ref: 'Subscription' })
   subscription: Types.ObjectId;
 
   @Prop()
@@ -147,8 +147,8 @@ export class Organisation {
   @Prop({
     type: Map,
     of: {
-      inApp: { type: Boolean, default: true },
-      email: { type: Boolean, default: true },
+      inApp: { type: Boolean},
+      email: { type: Boolean},
     },
     default: {},
   })
@@ -156,6 +156,15 @@ export class Organisation {
 
   @Prop()
   stripeCustomerId: string
+
+  @Prop({default:false})
+  closed: boolean
+
+  @Prop()
+  closedAt: Date
+
+  @Prop()
+  closureReason: string
 
   @Prop({ type: [PaymentMethod], default: [] })
   paymentMethods: PaymentMethod[];

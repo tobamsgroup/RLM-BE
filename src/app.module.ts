@@ -13,6 +13,8 @@ import { SubscriptionModule } from './subscription/subscription.module';
 import { FileUploadModule } from './file-upload/file-upload.module';
 import { ResourcesModule } from './resources/resources.module';
 import { UsersModule } from './users/users.module';
+import { InvoiceModule } from './invoice/invoice.module';
+import { ActivityLogsModule } from './activityLogs/activityLogs.module';
 
 @Module({
   imports: [
@@ -42,7 +44,9 @@ import { UsersModule } from './users/users.module';
     SubscriptionModule,
     FileUploadModule,
     ResourcesModule,
-    UsersModule
+    UsersModule,
+    InvoiceModule,
+    ActivityLogsModule
   ],
   controllers: [],
   providers: [],
